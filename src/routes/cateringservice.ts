@@ -67,6 +67,11 @@ router.get("/rest/test", async (req: RequestQuery<Record<string, string>>, res: 
                 schoolCode: req.query.schoolCode ?? "",
                 schoolName: req.query.schoolName ?? "",
             },
+        },
+        {
+            headers: {
+                Cookie: `JSESSIONID=${req.query.JSESSIONID}`,
+            },
         }
     );
     res.status(200).json({
