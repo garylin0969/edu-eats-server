@@ -1,9 +1,18 @@
 import { Router } from "express";
 import axios from "axios";
 import https from "https";
+import fs from "fs";
+import path from "path";
 // types
 import type { Response } from "express";
 import type { RequestBody, RequestQuery } from "../types";
+
+// const ePKICert = fs.readFileSync(path.resolve(process.cwd(), "src/assets/GTLSCA.crt"), "utf8");
+const ePKICert = fs.readFileSync(path.join(process.cwd(), "src", "assets", "GTLSCA.crt"), "utf8");
+
+const httpsAgent = new https.Agent({
+    ca: ePKICert,
+});
 
 const router = Router();
 
@@ -60,9 +69,9 @@ router.post("/rest/API", async (req: RequestBody<RestaurantParams>, res: Respons
 
 router.get("/rest/test", async (req: RequestQuery<Record<string, string>>, res: Response) => {
     try {
-        const httpsAgent = new https.Agent({
-            rejectUnauthorized: false,
-        });
+        // const httpsAgent = new https.Agent({
+        //     rejectUnauthorized: false,
+        // });
         const result = await axios.post<RestaurantResponse>(
             "https://fatraceschool.k12ea.gov.tw/cateringservice/rest/API/",
             {
