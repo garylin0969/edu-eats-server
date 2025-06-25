@@ -1,5 +1,6 @@
 import { Router } from "express";
 import axios from "axios";
+import https from "https";
 // types
 import type { Response } from "express";
 import type { RequestBody, RequestQuery } from "../types";
@@ -59,6 +60,9 @@ router.post("/rest/API", async (req: RequestBody<RestaurantParams>, res: Respons
 
 router.get("/rest/test", async (req: RequestQuery<Record<string, string>>, res: Response) => {
     try {
+        const httpsAgent = new https.Agent({
+            rejectUnauthorized: false,
+        });
         const result = await axios.post<RestaurantResponse>(
             "https://fatraceschool.k12ea.gov.tw/cateringservice/rest/API/",
             {
@@ -70,26 +74,27 @@ router.get("/rest/test", async (req: RequestQuery<Record<string, string>>, res: 
                 },
             },
             {
-                headers: {
-                    Cookie: `JSESSIONID=${req.query.JSESSIONID}`,
-                    "User-Agent":
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                    Accept: "application/json, text/plain, */*",
-                    "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8",
-                    "Accept-Encoding": "gzip, deflate, br",
-                    "Content-Type": "application/json",
-                    Origin: "https://fatraceschool.k12ea.gov.tw",
-                    Referer: "https://fatraceschool.k12ea.gov.tw/",
-                    DNT: "1",
-                    Connection: "keep-alive",
-                    "Sec-Fetch-Dest": "empty",
-                    "Sec-Fetch-Mode": "cors",
-                    "Sec-Fetch-Site": "same-origin",
-                    "X-Requested-With": "XMLHttpRequest",
-                },
-                timeout: 30000, // 30 seconds timeout
-                maxRedirects: 5,
-                validateStatus: (status) => status < 500, // Accept all status codes below 500
+                // headers: {
+                //     Cookie: `JSESSIONID=${req.query.JSESSIONID}`,
+                //     "User-Agent":
+                //         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                //     Accept: "application/json, text/plain, */*",
+                //     "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8",
+                //     "Accept-Encoding": "gzip, deflate, br",
+                //     "Content-Type": "application/json",
+                //     Origin: "https://fatraceschool.k12ea.gov.tw",
+                //     Referer: "https://fatraceschool.k12ea.gov.tw/",
+                //     DNT: "1",
+                //     Connection: "keep-alive",
+                //     "Sec-Fetch-Dest": "empty",
+                //     "Sec-Fetch-Mode": "cors",
+                //     "Sec-Fetch-Site": "same-origin",
+                //     "X-Requested-With": "XMLHttpRequest",
+                // },
+                // timeout: 30000, // 30 seconds timeout
+                // maxRedirects: 5,
+                // validateStatus: (status) => status < 500, // Accept all status codes below 500
+                httpsAgent,
             }
         );
 
