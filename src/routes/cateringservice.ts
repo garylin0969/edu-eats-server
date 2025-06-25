@@ -2,7 +2,7 @@ import { Router } from "express";
 import axios from "axios";
 // types
 import type { Response } from "express";
-import type { RequestBody } from "../types";
+import type { RequestBody, RequestQuery } from "../types";
 
 const router = Router();
 
@@ -55,6 +55,14 @@ router.post("/rest/API", async (req: RequestBody<RestaurantParams>, res: Respons
     } catch (error: any) {
         res.status(500).json({ result: 0, message: error?.message ?? "Unknown Error" });
     }
+});
+
+router.get("/rest/test", async (req: RequestQuery<Record<string, string>>, res: Response) => {
+    res.status(200).json({
+        result: 1,
+        message: "success",
+        data: req.query,
+    });
 });
 
 export default router;
