@@ -58,10 +58,21 @@ router.post("/rest/API", async (req: RequestBody<RestaurantParams>, res: Respons
 });
 
 router.get("/rest/test", async (req: RequestQuery<Record<string, string>>, res: Response) => {
+    const result = await axios.post<RestaurantResponse>(
+        "https://fatraceschool.k12ea.gov.tw/cateringservice/rest/API/",
+        {
+            method: req.query.method,
+            args: {
+                schoolId: Number(req.query.schoolId),
+                schoolCode: req.query.schoolCode ?? "",
+                schoolName: req.query.schoolName ?? "",
+            },
+        }
+    );
     res.status(200).json({
         result: 1,
         message: "success",
-        data: req.query,
+        data: result.data,
     });
 });
 
