@@ -1,7 +1,7 @@
 import { Router } from "express";
 import axios from "axios";
 import https from "https";
-// import fs from "fs";
+import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 
@@ -12,11 +12,11 @@ import type { Response } from "express";
 import type { RequestQuery } from "../types";
 
 // const ePKICert = fs.readFileSync(path.join(process.cwd(), "src", "assets", "GTLSCA.crt"), "utf8");
-// const ePKICert = fs.readFileSync(path.join(process.cwd(), "src", "assets", "GTLSCA.pem"), "utf8");
+const ePKICert = fs.readFileSync(path.join(process.cwd(), "src", "assets", "GTLSCA.pem"), "utf8");
 
 const httpsAgent = new https.Agent({
-    // ca: ePKICert,
-    ca: process.env.TLS_PEM ?? "",
+    ca: ePKICert,
+    // ca: process.env.TLS_PEM ?? "",
 });
 
 const router = Router();
