@@ -58,27 +58,60 @@ router.post("/rest/API", async (req: RequestBody<RestaurantParams>, res: Respons
 });
 
 router.get("/rest/test", async (req: RequestQuery<Record<string, string>>, res: Response) => {
-    const result = await axios.post<RestaurantResponse>(
-        "https://fatraceschool.k12ea.gov.tw/cateringservice/rest/API/",
-        {
-            method: req.query.method,
-            args: {
-                schoolId: Number(req.query.schoolId),
-                schoolCode: req.query.schoolCode ?? "",
-                schoolName: req.query.schoolName ?? "",
+    try {
+        const result = await axios.post<RestaurantResponse>(
+            "https://fatraceschool.k12ea.gov.tw/cateringservice/rest/API/",
+            {
+                method: req.query.method,
+                args: {
+                    schoolId: Number(req.query.schoolId),
+                    schoolCode: req.query.schoolCode ?? "",
+                    schoolName: req.query.schoolName ?? "",
+                },
             },
-        },
-        {
-            headers: {
-                Cookie: `JSESSIONID=${req.query.JSESSIONID}`,
-            },
-        }
-    );
-    res.status(200).json({
-        result: 1,
-        message: "success",
-        data: result.data,
-    });
+            {
+                headers: {
+                    Cookie: `JSESSIONID=${req.query.JSESSIONID}`,
+                    "User-Agent":
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    Accept: "application/json, text/plain, */*",
+                    "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Content-Type": "application/json",
+                    Origin: "https://fatraceschool.k12ea.gov.tw",
+                    Referer: "https://fatraceschool.k12ea.gov.tw/",
+                    DNT: "1",
+                    Connection: "keep-alive",
+                    "Sec-Fetch-Dest": "empty",
+                    "Sec-Fetch-Mode": "cors",
+                    "Sec-Fetch-Site": "same-origin",
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                timeout: 30000, // 30 seconds timeout
+                maxRedirects: 5,
+                validateStatus: (status) => status < 500, // Accept all status codes below 500
+            }
+        );
+
+        res.status(200).json({
+            result: 1,
+            message: "success",
+            data: result.data,
+        });
+    } catch (error: any) {
+        console.error("API request failed:", {
+            error: error.message,
+            code: error.code,
+            response: error.response?.data,
+            status: error.response?.status,
+        });
+
+        res.status(500).json({
+            result: 0,
+            message: error?.message ?? "Unknown Error",
+            details: error.response?.data || null,
+        });
+    }
 });
 
 export default router;
