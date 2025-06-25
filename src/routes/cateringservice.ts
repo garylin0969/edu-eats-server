@@ -1,17 +1,22 @@
 import { Router } from "express";
 import axios from "axios";
 import https from "https";
-import fs from "fs";
+// import fs from "fs";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config({ path: path.join(process.cwd(), ".env") });
+
 // types
 import type { Response } from "express";
 import type { RequestQuery } from "../types";
 
 // const ePKICert = fs.readFileSync(path.join(process.cwd(), "src", "assets", "GTLSCA.crt"), "utf8");
-const ePKICert = fs.readFileSync(path.join(process.cwd(), "src", "assets", "GTLSCA.pem"), "utf8");
+// const ePKICert = fs.readFileSync(path.join(process.cwd(), "src", "assets", "GTLSCA.pem"), "utf8");
 
 const httpsAgent = new https.Agent({
-    ca: ePKICert,
+    // ca: ePKICert,
+    ca: process.env.TLS_PEM ?? "",
 });
 
 const router = Router();
@@ -44,6 +49,10 @@ interface RestaurantResponse {
 router.get("/rest/test", async (req: RequestQuery<Record<string, string>>, res: Response) => {
     try {
         // console.log("ePKICert: ", ePKICert);
+        // console.log("TLS_PEM: ", process.env.TLS_PEM);
+        // const singleLine = process.env.TLS_PEM!.trim().replace(/\r?\n/g, "\\n");
+        // console.log("--------------------------------");
+        // console.log(singleLine);
         const result = await axios.post<RestaurantResponse>(
             "https://fatraceschool.k12ea.gov.tw/cateringservice/rest/API/",
             {
