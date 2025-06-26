@@ -11,6 +11,22 @@ dotenv.config({ path: path.join(process.cwd(), '.env') });
 import type { Response } from 'express';
 import type { RequestQuery } from '../types';
 
+type RemoveUndefined<T> = {
+    [K in keyof T as T[K] extends undefined ? never : K]: Exclude<T[K], undefined>;
+};
+
+const objectRemoveUndefined = <T extends Record<string, unknown>>(obj: T): RemoveUndefined<T> => {
+    const result = {} as RemoveUndefined<T>;
+
+    for (const [key, value] of Object.entries(obj)) {
+        if (value !== undefined) {
+            (result as Record<string, unknown>)[key] = value;
+        }
+    }
+
+    return result;
+};
+
 // const ePKICert = fs.readFileSync(path.join(process.cwd(), "src", "assets", "GTLSCA.crt"), "utf8");
 const ePKICert = fs.readFileSync(path.join(process.cwd(), 'src', 'assets', 'GTLSCA.pem'), 'utf8');
 
@@ -21,43 +37,26 @@ const httpsAgent = new https.Agent({
 
 const router = Router();
 
-interface RestaurantResponse {
-    result_content: {
-        resStatus: number;
-        msg: string;
-        storeList: {
-            storeId: string;
-            storeName: string;
-            schoolId: string;
-            schoolName: string;
-            storeTypeCode: string;
-            storeTypeName: string;
-            storeParentCode: string;
-            storeParentName: string;
-            storeCode: string;
-            sfStreetId: string;
-            enable: string;
-            logo: string;
-        }[];
-    };
-    resource: string;
-    method: string;
-    result: string;
-    error_msg: string;
-}
-
 router.get('/rest/API', async (req: RequestQuery<Record<string, string>>, res: Response) => {
+    const args = objectRemoveUndefined({
+        schoolId: req.query.schoolId ? Number(req.query.schoolId) : undefined,
+        schoolCode: req.query.schoolCode,
+        schoolName: req.query.schoolName,
+        func: req.query.func,
+        storeId: req.query.storeId,
+    });
+
+    const body = {
+        method: req.query.method,
+        token: req.query.token,
+        username: req.query.username,
+        args: args,
+    };
+
     try {
-        const result = await axios.post<RestaurantResponse>(
+        const result = await axios.post(
             'https://fatraceschool.k12ea.gov.tw/cateringservice/rest/API/',
-            {
-                method: req.query.method,
-                args: {
-                    schoolId: Number(req.query.schoolId),
-                    schoolCode: req.query.schoolCode ?? '',
-                    schoolName: req.query.schoolName ?? '',
-                },
-            },
+            objectRemoveUndefined(body),
             {
                 httpsAgent,
             }
@@ -66,7 +65,7 @@ router.get('/rest/API', async (req: RequestQuery<Record<string, string>>, res: R
         res.status(200).json({
             result: 1,
             message: result.data.result_content.msg,
-            data: result.data.result_content.storeList,
+            data: result.data.result_content[req.query.key],
         });
     } catch (error: any) {
         console.error('API request failed:', {
