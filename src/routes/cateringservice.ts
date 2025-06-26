@@ -48,11 +48,6 @@ interface RestaurantResponse {
 
 router.get("/rest/test", async (req: RequestQuery<Record<string, string>>, res: Response) => {
     try {
-        // console.log("ePKICert: ", ePKICert);
-        // console.log("TLS_PEM: ", process.env.TLS_PEM);
-        // const singleLine = process.env.TLS_PEM!.trim().replace(/\r?\n/g, "\\n");
-        // console.log("--------------------------------");
-        // console.log(singleLine);
         const result = await axios.post<RestaurantResponse>(
             "https://fatraceschool.k12ea.gov.tw/cateringservice/rest/API/",
             {
@@ -70,8 +65,8 @@ router.get("/rest/test", async (req: RequestQuery<Record<string, string>>, res: 
 
         res.status(200).json({
             result: 1,
-            message: "success",
-            data: result.data,
+            message: result.data.result_content.msg,
+            data: result.data.result_content.storeList,
         });
     } catch (error: any) {
         console.error("API request failed:", {
