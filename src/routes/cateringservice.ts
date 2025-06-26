@@ -46,7 +46,7 @@ interface RestaurantResponse {
     error_msg: string;
 }
 
-router.get("/rest/test", async (req: RequestQuery<Record<string, string>>, res: Response) => {
+router.get("/rest/API", async (req: RequestQuery<Record<string, string>>, res: Response) => {
     try {
         const result = await axios.post<RestaurantResponse>(
             "https://fatraceschool.k12ea.gov.tw/cateringservice/rest/API/",
