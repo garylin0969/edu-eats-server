@@ -43,7 +43,7 @@ router.get('/rest/API', async (req: RequestQuery<Record<string, string>>, res: R
         res.status(200).json({
             result: 1,
             message: result.data.result_content.msg,
-            data: result.data.result_content[req?.query?.key],
+            data: result.data.result_content?.storeList ?? [],
         });
     } catch (error: any) {
         console.error('API request failed:', {
