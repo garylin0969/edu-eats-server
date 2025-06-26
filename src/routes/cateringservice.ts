@@ -1,18 +1,18 @@
-import { Router } from "express";
-import axios from "axios";
-import https from "https";
-import fs from "fs";
-import path from "path";
-import dotenv from "dotenv";
+import { Router } from 'express';
+import axios from 'axios';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import dotenv from 'dotenv';
 
-dotenv.config({ path: path.join(process.cwd(), ".env") });
+dotenv.config({ path: path.join(process.cwd(), '.env') });
 
 // types
-import type { Response } from "express";
-import type { RequestQuery } from "../types";
+import type { Response } from 'express';
+import type { RequestQuery } from '../types';
 
 // const ePKICert = fs.readFileSync(path.join(process.cwd(), "src", "assets", "GTLSCA.crt"), "utf8");
-const ePKICert = fs.readFileSync(path.join(process.cwd(), "src", "assets", "GTLSCA.pem"), "utf8");
+const ePKICert = fs.readFileSync(path.join(process.cwd(), 'src', 'assets', 'GTLSCA.pem'), 'utf8');
 
 const httpsAgent = new https.Agent({
     ca: ePKICert,
@@ -21,65 +21,42 @@ const httpsAgent = new https.Agent({
 
 const router = Router();
 
-interface RestaurantResponse {
-    result_content: {
-        resStatus: number;
-        msg: string;
-        storeList: {
-            storeId: string;
-            storeName: string;
-            schoolId: string;
-            schoolName: string;
-            storeTypeCode: string;
-            storeTypeName: string;
-            storeParentCode: string;
-            storeParentName: string;
-            storeCode: string;
-            sfStreetId: string;
-            enable: string;
-            logo: string;
-        }[];
-    };
-    resource: string;
-    method: string;
-    result: string;
-    error_msg: string;
-}
-
-router.get("/rest/API", async (req: RequestQuery<Record<string, string>>, res: Response) => {
+router.get('/rest/API', async (req: RequestQuery<Record<string, string>>, res: Response) => {
     try {
-        const result = await axios.post<RestaurantResponse>(
-            "https://fatraceschool.k12ea.gov.tw/cateringservice/rest/API/",
+        const result = await axios.post(
+            'https://fatraceschool.k12ea.gov.tw/cateringservice/rest/API/',
             {
-                method: req.query.method,
+                method: req?.query?.method ?? '',
                 args: {
-                    schoolId: Number(req.query.schoolId),
-                    schoolCode: req.query.schoolCode ?? "",
-                    schoolName: req.query.schoolName ?? "",
+                    schoolId: Number(req?.query?.schoolId),
+                    schoolCode: req?.query?.schoolCode ?? '',
+                    schoolName: req?.query?.schoolName ?? '',
+                    func: req?.query?.func ?? '',
+                    storeId: req?.query?.storeId ?? '',
+                    type: req?.query?.type ?? '',
+                    valueName: req?.query?.valueName ?? '',
                 },
             },
-            {
-                httpsAgent,
-            }
+            { httpsAgent }
         );
 
         res.status(200).json({
             result: 1,
             message: result.data.result_content.msg,
-            data: result.data.result_content.storeList,
+            data: result.data.result_content[req?.query?.key],
         });
     } catch (error: any) {
-        console.error("API request failed:", {
-            error: error.message,
-            code: error.code,
-            response: error.response?.data,
-            status: error.response?.status,
+        console.error('API request failed:', {
+            error: error?.message,
+            code: error?.code,
+            response: error?.response?.data,
+            status: error?.response?.status,
         });
 
         res.status(500).json({
             result: 0,
-            message: error?.message ?? "Unknown Error",
-            details: error.response?.data || null,
+            message: error?.message ?? 'Unknown Error',
+            details: error?.response?.data || null,
         });
     }
 });
