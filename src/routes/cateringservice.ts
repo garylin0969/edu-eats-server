@@ -44,6 +44,8 @@ router.get('/rest/API', async (req: RequestQuery<Record<string, string>>, res: R
         schoolName: req.query.schoolName,
         func: req.query.func,
         storeId: req.query.storeId,
+        type: req.query.type,
+        valueName: req.query.valueName,
     });
 
     const body = {
